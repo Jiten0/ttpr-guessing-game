@@ -4,18 +4,35 @@
   <head>
     <meta charset="UTF-8">
     <title>Guessing Game</title>
-    <link rel="stylesheet" href="main.css">
+   
     <!-- the MAIN.CSS file is linked here -->
+    <link rel="stylesheet" href="main.css">
   </head>
 
   <body>
-
-
-
-
+    <div class="game-container">
+      <h1 id="title">Guess a number between 1 and 100</h1>
+  
+      <input type="text" id="player-input">
+      <button id="submit">Submit</button>
+      <button id="hint">Hint</button>
+      <button id="reset">Reset</button>
+      
+      <p id="feedback"></p>
+      <ul id="past-guesses"></ul>
+      
+  
+      <ul id="past-guesses">
+        <li class="guess">-</li>
+        <li class="guess">-</li>
+        <li class="guess">-</li>
+        <li class="guess">-</li>
+        <li class="guess">-</li>
+      </ul>
+    </div>
+    <script src = "js/guessing-game.js"> </script>
 
     <!-- <script src='js/guessing-game.js'></script> -->
     <!-- uncomment the script tag above when you are ready to add JavaScript to your document -->
   </body>
-
 </html>

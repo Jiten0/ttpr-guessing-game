@@ -1,78 +1,122 @@
-/* 
+// === Number Guessing Game ===
 
-Write your guess-game code here! Don't forget to look at the test specs as a guide. You can run the specs
-by running "testem".
-
-In this file, you will also include the event listeners that are needed to interact with your HTML file when
-a user clicks a button or adds a guess to the input field.
-
-*/
-
-/* 
-NUMBER GUESSING GAME
-Implement the missing code based on the comments
-*/
-
-// Generate random number between 1-100 (inclusive)
 function generateWinningNumber() {
-  // Return random integer
+  return Math.floor(Math.random() * 100) + 1;
 }
 
-// Shuffle array using Fisher-Yates algorithm
 function shuffle(array) {
-  // Modify array in place and return it
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
 
 class Game {
   constructor() {
-    // Initialize properties:
-    // - playersGuess (current guess)
-    // - pastGuesses (array of previous guesses)
-    // - winningNumber (generated number)
+    this.playersGuess = null;
+    this.pastGuesses = [];
+    this.winningNumber = generateWinningNumber();
   }
 
-  // Return absolute difference between guess and winning number
   difference() {
-    // Calculate and return difference
+    return Math.abs(this.playersGuess - this.winningNumber);
   }
 
-  // Return true if guess is lower than winning number
   isLower() {
-    // Return boolean comparison
+    return this.playersGuess < this.winningNumber;
   }
 
-  // Validate and process guess
   playersGuessSubmission(num) {
-    // Throw error if invalid number
-    // Set playersGuess
-    // Return checkGuess result
+    if (typeof num !== 'number' || num < 1 || num > 100) {
+      return 'That is an invalid guess!';
+    }
+    this.playersGuess = num;
+    return this.checkGuess();
   }
 
-  // Evaluate guess and return feedback message
   checkGuess() {
-    // Handle win condition
-    // Handle duplicate guess
-    // Add to pastGuesses
-    // Handle max guesses
-    // Return temperature feedback
+    if (this.playersGuess === this.winningNumber) {
+      return 'You Win!';
+    }
+
+    if (this.pastGuesses.includes(this.playersGuess)) {
+      return 'You have already guessed that number.';
+    }
+
+    this.pastGuesses.push(this.playersGuess);
+
+    if (this.pastGuesses.length === 5) {
+      return 'You Lose.';
+    }
+
+    const diff = this.difference();
+    if (diff < 10) return "You're burning up!";
+    else if (diff < 25) return "You're lukewarm.";
+    else if (diff < 50) return "You're a bit chilly.";
+    else return "You're ice cold!";
   }
 
-  // Generate array with 3 numbers (winning + 2 random)
   provideHint() {
-    // Create array and shuffle
+    const hintArr = [this.winningNumber];
+    while (hintArr.length < 3) {
+      const rand = generateWinningNumber();
+      if (!hintArr.includes(rand)) {
+        hintArr.push(rand);
+      }
+    }
+    return shuffle(hintArr);
   }
 }
 
-// DOM Setup - Implement event listeners
+// === DOM Logic ===
+
+let game;
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize game state
-  // Get DOM elements
-  // Set up event handlers for:
-  // - Submit guess
-  // - Reset game
-  // - Show hint
-  // Implement:
-  // - Input validation
-  // - Display updates
-  // - Game state management
+  const guessInput = document.getElementById('player-input');
+  const guessButton = document.getElementById('submit');
+  const hintButton = document.getElementById('hint');
+  const resetButton = document.getElementById('reset');
+  const feedback = document.getElementById('feedback');
+  const pastGuesses = document.getElementById('past-guesses');
+
+  game = new Game();
+
+  function displayGuess(guess) {
+    const result = game.playersGuessSubmission(guess);
+    feedback.textContent = result;
+
+    pastGuesses.innerHTML = '';
+    game.pastGuesses.forEach(g => {
+      const li = document.createElement('li');
+      li.textContent = g;
+      pastGuesses.appendChild(li);
+    });
+
+    if (result === 'You Win!' || result === 'You Lose.') {
+      guessButton.disabled = true;
+      hintButton.disabled = true;
+    }
+  }
+
+  guessButton.addEventListener('click', () => {
+    const guess = parseInt(guessInput.value);
+    displayGuess(guess);
+    guessInput.value = '';
+  });
+
+  hintButton.addEventListener('click', () => {
+    const hints = game.provideHint();
+    feedback.textContent = `One of these is the correct number: ${hints.join(', ')}`;
+  });
+
+  resetButton.addEventListener('click', () => {
+    game = new Game();
+    feedback.textContent = '';
+    pastGuesses.innerHTML = '';
+    guessInput.value = '';
+    guessButton.disabled = false;
+    hintButton.disabled = false;
+  });
 });
